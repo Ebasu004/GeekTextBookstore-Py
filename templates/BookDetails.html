@@ -1,0 +1,108 @@
+{% extends 'nav.html' %}
+{% block page_title %}
+    <title>GeekText | {{ book.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'BookDetails/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <main class="container">
+        <div class="left-column">
+            <div class="Image">
+
+                {% with 'Books/img/'|add:book.title|add:'.jpg' as image_ref %}
+                <a <img href="{% static image_ref %}"alt="Missing Image">
+                    <img src="{% static image_ref %}" alt="Missing Image">
+                </a>
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="description" style="color: black !important;">
+                <h1>{{ book.title }}</h1>
+                <h3>By: <a href="{% url 'author' book.author %}">{{ book.author }}</a></h3>
+                <p>{{ book.description }}</p>
+            </div>
+
+            <div class="Author Details">
+                <h2>About {{ book.author }}</h2>
+                {% if book.author_bio %}
+                    <p>{{ book.author_bio }}</p>
+                {% else %}
+                    <p>{{ book.author }}'s bio coming shortly...</p>
+                {% endif %}
+            </div>
+
+            <div class="Publisher Details">
+                {% if book.publisher %}
+                    <h6>Publisher: {{ book.publisher }}</h6>
+                    <h6>Published on: {{ book.date_published }}</h6>
+                {% else %}
+                    <p>No publisher information for '{{ book.title }}' yet.</p>
+                {% endif %}
+            </div>
+
+
+            <div class="FeedBack">
+                <hr style="margin-left: 10px; margin-right: 10px">
+                <h3>Price: ${{ book.price }}</h3>
+                <div class="product-price">
+                  {% if request.user.is_authenticated %}
+                    <button class="btn btn-success">Add to Cart</button>&nbsp;
+                    {% else %}
+                    <button class="btn btn-success" onclick = "window.location.href ={% url 'login' %}" >Add to Cart</button>&nbsp;
+                    {% endif %}
+                    <div class="dropdown">
+                      {% if request.user.is_authenticated %}
+                        <button onclick="sendToWishlist()" class="btn btn-info">Add to Wishlist</button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <a href="#">Wishlist 1</a>
+                            <a href="#">Wishlist 2</a>
+                            <a href="#">Wishlist 3</a>
+                        </div>
+                        {% else %}
+                        <button onclick="window.location.href ={% url 'login' %}" class="btn btn-info">Add to Wishlist</button>
+                        {% endif %}
+                    </div>
+
+                    <script>
+                        function wishlistQuery() {
+                            //Generates query for the sendToWishlist function.
+
+                            const product = document.getElementById("productName").innerHTML;
+                            const dropdown = document.getElementById("wishlistChoiceDropdown");
+                            const choice = dropdown.options[dropdown.selectedIndex].text;
+
+                            if (choice === "None") { //If the user selected "None" as their option.
+                                alert("Please select a wishlist in order to submit.");
+                            } else {
+                                return "INSERT INTO {\"user\'s personal table\"} " + choice + " VALUES " + product;
+                            }
+                        }
+
+                        function sendToWishlist() {
+                            console.log("Send to Wishlist");
+                            document.getElementById("myDropdown").classList.toggle("show");
+                        }
+                    </script>
+                </div>
+            </div>
+            &nbsp
+            <div class="Rating">
+                {% if book.publisher %}
+                    <h6>Book Rating: {{ book.rating }}/5</h6>
+                {% else %}
+                    <p>No rating information for '{{ book.title }}' yet.</p>
+                {% endif %}
+            </div>
+            &nbsp
+            <form action="/action_page.php" id="usrform">
+              Name: <input type="text" name="usrname">
+              <input type="submit">
+            </form>
+            <br>
+            <textarea rows="4" cols="50" name="comment" form="usrform">Leave a comment here...</textarea>
+        </div>
+    </main>
+{% endblock %}

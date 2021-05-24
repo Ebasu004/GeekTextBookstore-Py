@@ -1,0 +1,405 @@
+{% extends "nav.html" %}
+{% load static %}
+{% load mathfilters %}
+{% block page_title %}
+    <title>GeekText | Shopping Cart</title>
+{% endblock %}
+{% block content %}
+<style media="screen">
+hr {
+  border: 0;
+  clear:both;
+  display:block;
+  width: 100%;
+  background-color: #A9A9A9;
+  height: 1px;
+}
+.shopping-cart{
+  display: flex;
+  flex-direction: column;
+}
+.labels {
+  padding: 5px 100px;
+  text-align: center;
+  display: flex;
+  height: 40px;
+}
+.book {
+  padding: 15px 100px;
+  display: flex;
+  border-bottom: 1px solid lightgray;
+}
+.book-image {
+  width: 15%;
+  height: 120px;
+}
+img.book-image {
+  width: auto;
+  height: 120px;
+}
+.book-information {
+  width: 40%;
+}
+.book-information span {
+  display: block;
+  font-size: 14px;
+  color: #43484D;
+  font-weight: 400;
+}
+.book-quantity {
+  width: 10%;
+  text-align: center;
+}
+.book-quantity input {
+  text-align: center;
+  width: 75px;
+  color: #43484D;
+}
+.buttons {
+  width: 15%;
+}
+button.save-for-later,
+button.remove-book,
+button.clear-cart{
+  background-color: forestgreen;
+  text-align: center;
+  color: white;
+  width: 120px;
+  height: 40px;
+  border-radius: 10px;
+}
+button.save-for-later:hover,
+button.remove-book:hover,
+button.clear-cart:hover{
+  background-color: green;
+  font-weight: bold;
+}
+.book-price, .book-quantity-price {
+  width: 10%;
+  text-align: center;
+}
+.empty-cart {
+  padding-bottom: 20px;
+  padding-left: 50px
+}
+.save-container{
+  border-style: groove;
+  border-radius: 10px;
+  width: 68%;
+  float: left;
+  padding: 20px;
+}
+.saves{
+  font-weight: bold;
+  line-height: 60px;
+  color: forestgreen;
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+  border-bottom: 1px solid lightgray;
+}
+.save-image{
+  width: 15%;
+  padding: 5px;
+}
+img.save-image {
+  width: auto;
+  height: 80px;
+}
+.save-title{
+  width: 65%;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 5px;
+}
+button.clear-save {
+  background-color: forestgreen;
+  font-size: 15px;
+  text-align: center;
+  color: white;
+  width: 70px;
+  height: 40px;
+  border-radius: 10px;
+  float: right;
+}
+button.clear-save:hover{
+  background-color: green;
+  font-weight: bold;
+}
+.save-buttons{
+  width: 20%;
+  padding: 5px;
+}
+button.add, button.remove{
+  border: none;
+  background-color: inherit;
+  width: 30px;
+  height: 30px;
+}
+button.add:hover, button.remove:hover{
+  font-size: 150%;
+}
+.totals {
+  border-style: groove;
+  border-radius: 10px;
+  width: 30%;
+  float: right;
+  padding: 50px;
+}
+.totals-book {
+  width: 50%;
+  float: left;
+}
+.subtotal, .tax, .shipping, .grandtotal {
+  width: 50%;
+  float: right;
+  text-align: right;
+}
+.book .book-price:before, .book .book-quantity-price:before,
+.totals .subtotal:before, .totals .tax:before,
+.totals .shipping:before, .totals .grandtotal:before{
+  content: '$  ';
+}
+button.checkout {
+  width: 100%;
+  height: 50px;
+  background-color: forestgreen;
+  color: white;
+  font-size: 150%;
+  border-radius: 25px;
+}
+button.checkout:hover {
+  background-color: darkgreen;
+  font-weight: bold;
+}
+.clear-cart{
+  margin: 10px;
+}
+</style>
+
+<div class="shopping-cart">
+  <!--Title-->
+  <h2>Shopping Cart</h2>
+  <!--If there are any books in the user database (if request.user.is_authenticated)-->
+
+  {% if books or request.user.is_authenticated %}
+    <div class="labels" id="col-title">
+      <div class="book-image"></div>
+      <div class="book-information"></div>
+      <div class="book-price"><b>Price</b></div>
+      <div class="book-quantity"><b>Quantity</b></div>
+      <div class="buttons"></div>
+      <div class="book-quantity-price"><b>Total</b></div>
+    </div><hr>
+      <!--For each book in user database-->
+    {% for book in shopping_cart %}
+      {% with 'Books/img/'|add:book.title|add:'.jpg' as img_ref %}
+      <!--Shopping list test-->
+      <div class="book" id="{{ book.id }}">
+        <!--Book Image-->
+        <div class="book-image" id="book-image">
+          <img class="book-image" src="{% static img_ref %}">
+        </div>
+        <!--Book Title and Author-->
+        <div class="book-information" id="book-information">
+          <h4 class="book-title"><a style="color: green" href="{% url 'details' book.id  %}">{{ book.title }}</a></h4>
+          <h5 class="book-author">{{ book.author }}</h5>
+        </div>
+        <!--Book Price-->
+        <div class="book-price" id="book-price">
+          {{ book.price }}
+        </div>
+        <!--Book Quantity-->
+        <div class="book-quantity" id="book-quantity">
+          <input type="number" value="1" min="1" id="quantity">
+        </div>
+        <!--Buttons to save for later or remove-->
+        <div class="buttons">
+          <button class="save-for-later" id={{book.id}}">Save for later</button>
+          <button class="remove-book" id="{{book.id}}">Remove</button>
+        </div>
+        <!--Book Price * Quantity-->
+        <div class="book-quantity-price" id="book-quantity-price">
+          {{ book.price }}
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}<br>
+    <p class="empty-cart" id="emp-all">Your cart is currently empty. Browse <a style="color: green" href="{% url 'home' %}?page=1"><u>here</u></a> to fill your cart with books.</p>
+    <span>
+      <div class="save-container">
+        <h3>Save for Later<button class="clear-save" id="{{book.id}}">Clear</button></h3>
+        <p>You saved these items to purchase at a later date.</p>
+        <hr>
+        {% for book in saved_books %}
+        {% with 'Books/img/'|add:book.title|add:'.jpg' as img_ref %}
+          <div class="saves">
+            <div class="save-image">
+              <img class="save-image" src="{% static img_ref %}">
+            </div>
+            <div class="save-title">
+              <a style="color: green" href="{% url 'details' book.id  %}">
+              <p>{{book.title}}</p>
+              </a>
+            </div>
+            <div class="save-buttons">
+              <button class="add">🛒</button>
+              <button class="remove">❌</button>
+            </div>
+          </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      <div class="totals" id="tot">
+        <span>
+            <span>
+              <p class="totals-book">Subtotal</p>
+              <p class="subtotal"></p>
+            </span>
+            <span>
+              <p class="totals-book">Tax (6%)</p>
+              <p class="tax">{{subtotal|mul:.06}}</p>
+            </span>
+            <span>
+              <p class="totals-book">Shipping Rate</p>
+              <p class="shipping">5.99</p>
+            </span><hr>
+            <span>
+              <p class="totals-book">TOTAL</p>
+              <p class="grandtotal">90.57</p>
+            </span>
+        </span>
+        <button class="checkout" onclick="window.location.href = {% url 'checkout' %};">Check Out</button>
+      </div>
+    </span>
+    <div class="clear-cart">
+      <button class="clear-cart" id="{{book.id}}">Clear</button>
+    </div>
+  </div>
+    <!--If user database is empty-->
+  {% else %}
+  <hr>
+    <p class="empty-cart" id="emp">Your cart is currently empty. Browse <a style="color: green" href="{% url 'browse' %}"><u>here</u></a> to fill your cart with books.</p>
+  {% endif %}
+<script>
+  var fadeTime = 300;
+  var taxRate = 0.05;
+  var shippingRate = 5.99;
+  /*Hide empty cart message, this is meant to show when cart is cleared*/
+  $(document).ready(function () {
+    console.log("ready");
+    $("#emp-all.empty-cart").hide();
+    recalculateCart();
+  });
+  /*Clear Cart button will remove the labels and the books, hide the totals and
+  clear all button, and show empty cart message*/
+  $(".clear-cart").click(function(){
+    console.log("cart is cleared");
+    $("{{book.id}}.book").remove();
+    $("#col-title.labels").remove();
+    $("#emp-all.empty-cart").show();
+    $("#tot.totals").remove();
+    $(".clear-cart").hide();
+  });
+  /*update price (book price * book quantity)*/
+  $('.book-quantity input').change( function() {
+    console.log("Quantity for an item is updated");
+    updateQuantity(this);
+  });
+  /*Clear saved for later buttone will remove everything in the saved for
+  later container and hide the clear all button*/
+  $(".clear-save").click(function(){
+    console.log("Saved for later is cleared");
+    $("{{book.id}}.saves").remove();
+    $(".clear-save").hide();
+  });
+  $('.book-quantity input').change( function() {
+    updateQuantity(this);
+  });
+  /* Recalculate cart */
+  function recalculateCart()
+  {
+    var subtotal = 0;
+    /* Sum up row totals */
+    $('.book').each(function () {
+      subtotal += parseFloat($(this).children('.book-quantity-price').text());
+    });
+    /* Calculate totals */
+    var tax = subtotal * taxRate;
+    var shipping = shippingRate;
+    var total = subtotal + tax + shipping;
+    /* Update totals display */
+    $('.totals-value')
+      $('.subtotal').html(subtotal.toFixed(2));
+      $('.tax').html(tax.toFixed(2));
+      $('.shipping').html(shipping.toFixed(2));
+      $('.grandtotal').html(total.toFixed(2));
+      $('.totals-value').show();
+  }
+  /* Update quantity */
+  function updateQuantity(quantityInput)
+  {
+    /* Calculate line price */
+    var productRow = $(quantityInput).parent().parent();
+    var price = parseFloat(productRow.children('.book-price').text());
+    var quantity = $(quantityInput).val();
+    var linePrice = price * quantity;
+    /* Update line price display and recalc cart totals */
+    productRow.children('.book-quantity-price').each(function () {
+        $(this).text(linePrice.toFixed(2));
+        recalculateCart();
+    });
+  }
+  //remove button functionality
+  $('.remove-book').click( function() {
+    removeItem(this);
+    recalculateCart();
+    console.log("An item is removed from the cart.");
+  });
+  //Remove item from the saved for later
+  $('.remove').click( function() {
+    removeItem(this);
+    console.log("An item is removed from the saved for later.");
+  });
+  /* Remove item from cart */
+  function removeItem(removeButton)
+  {
+    var productRow = $(removeButton).parent().parent();
+    productRow.remove();
+  }
+  //save for later button functionality
+  $('.save-for-later').click( function() {
+    saveItem(this);
+    recalculateCart();
+    console.log("An item is saved for later.");
+  });
+  //add to cart button functionality
+  $('.add').click( function() {
+    addItem(this);
+    recalculateCart();
+    console.log("An item is added to cart.");
+  });
+  /* Remove item from cart */
+  function saveItem(saveButton)
+  {
+    var productRow = $(saveButton).parent().parent();
+    productRow.remove();
+  }
+  /* Remove item from saved for later */
+  function addItem(saveButton)
+  {
+    var productRow = $(saveButton).parent().parent();
+    productRow.remove();
+  }
+  /* Add saved book to shopping cart */
+  function addToCart(title, author, price, quantity) {
+    var bookProduct = {};
+    bookProduct.Name = name;
+    bookProduct.Author = author;
+    bookProduct.Price = price;
+    bookProduct.Quantity = quantity;
+    books.push(bookProduct);
+    recalculateCart();
+  }
+</script>
+{% endblock %}

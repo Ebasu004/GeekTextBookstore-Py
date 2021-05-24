@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    {% block page_title %}
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar sticky-top navbar-expand-lg navbar-light shadow-sm p-2 mb-2 bg-white rounded">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}?page=1" style="color: green">GeekText</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                {% if 'browse' in request.path or 'home' in request.path %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'home' %}?page=1">Home</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}?page=1">Home</a>
+                    </li>
+                {% endif %}
+                {% if 'wishlist' in request.path %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'wishlist' %}">Wishlist</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'wishlist' %}">Wishlist</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <form action="{% url 'search' %}" class="form-inline my-2 my-lg-0 mr-3" method="post">
+                    {% csrf_token %}
+                    <input id="search_term" name="search_term" class="form-control mr-sm-2" type="search"
+                            {% if not searchterm %}
+                           placeholder="Search for books" {% else %} value={{ searchterm }} {% endif %} aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                {% if 'cart' in request.path %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'cart' %}">Cart</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cart' %}">Cart</a>
+                    </li>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                    {% if 'profile' in request.path %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                    {% endif %}
+                    {% if 'logout' in request.path %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    {% if 'register' in request.path %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'register' %}">Sign Up</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                    {% if 'login' in request.path %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid" id="content">
+    {% block content %}
+    {% endblock %}
+</div>
+{% if 'browse' in request.path and not 'details' in request.path %}
+    <div class="d-flex justify-content-center">
+        <footer style="bottom: 0" class="position-fixed">
+            <ul class="pagination">
+                {% if not books.has_previous %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="?page=1">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a style="color: black !important; transition: all 500ms" class="page-link"
+                           href="?page={{ books.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for page in books.paginator.page_range %}
+                    {% if forloop.counter == books.number %}
+                        <li class="page-item active">
+                            <a style="color: white !important; background-color: black; border-color: black; transition: all 500ms"
+                               class="page-link"
+                               href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a style="color: black !important; transition: all 500ms" class="page-link"
+                               href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if not books.has_next %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="?page={{ books.end_index }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a style="color: black !important; transition: all 500ms" class="page-link"
+                           href="?page={{ books.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </footer>
+    </div>
+{% endif %}
+</body>
+</html>

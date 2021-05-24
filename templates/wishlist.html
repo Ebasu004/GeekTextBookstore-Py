@@ -1,0 +1,919 @@
+{% extends "nav.html" %}
+{% block page_title %}
+    <title>GeekText | 📜Wishlists📜</title>
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<style>
+  .button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 6px;
+  }
+
+  .button1 {
+  background-color: #7DC855;
+  color: black;
+  border: 2px solid #7DC855;
+  }
+
+  .button1:hover {
+  background-color: #64af3d;
+  color: white;
+  border: 2px solid #64af3d;
+  }
+
+  .addToCartButton {
+    background-color: green;
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 0px!important;
+  }
+  .addToCartButton:hover {
+  background-color: darkgreen;
+  color: white;
+  border: 2px solid darkgreen;
+  }
+
+  .removeItemButton {
+    background-color: red;
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 0px!important;
+  }
+  .removeItemButton:hover {
+    background-color: darkred;
+    color: white;
+    border: 2px solid darkred;
+
+  }
+
+</style>
+
+<body style="background-color:white;">
+
+<h1 style="color:#7DC855; text-align:center; font-family:verdana; text-shadow: 2px 2px darkgreen; hover: blue;">Wishlists</h1>
+
+<form method="get" action="/wishlist">
+  Search product directory:
+  <input type="text" name="search" style="font-family: courier; background-color:#f5f5f5;border: 1px solid black;">
+  <input type="submit" class="button button1" value="Search">
+</form>
+
+
+<script>
+var database = [];
+{% for book in books %}
+    database.push('{{book.title}}');
+{% endfor %}
+console.log(database);
+//var database = ["Flat Stanley by John Cena", "The Never Ending Story by Elvis Presley", "Hairy by Me", "Buy, By, or Bye? by Kendrick Lallama"];
+
+function get(name){
+  //Read get requests
+  //name (String): identifier for get request
+   if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+      return decodeURIComponent(name[1]);
+}
+
+function query(search_for){
+  //find all matches of the user's input within the database
+  // search_for (String): what to query for
+
+  if (search_for != undefined){
+    var searchUpper = search_for.toUpperCase();
+  }
+
+  var matches = []; //stores all matches from query
+  for (i = 0; i <= database.length - 1; i++){
+
+    //Changing everything to uppercase in order to ignore case
+    var databaseUpper = database[i].toUpperCase();
+
+    if(matches.length >= 0 && databaseUpper.includes(searchUpper)){
+      matches.push(database[i]);
+    }
+  }
+
+  // If there are no matches and search_for is defined/present
+  if (matches.length == 0 && search_for != undefined){
+    alert("There are no results for that query.");
+  }
+  return matches.reverse();
+}
+
+function addRow(column1, column2, column3, column4){
+  //Add a row to "resultstable"
+  //column1 (String)
+  //column2 (String)
+  //column3 (String)
+  //column4 (String)
+  var table = document.getElementById("resultstable");
+  var row = table.insertRow(1);
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  var cell3 = row.insertCell(2);
+  var cell4 = row.insertCell(3);
+  cell1.innerHTML = column1;
+  cell2.innerHTML = column2;
+  cell3.innerHTML = column3;
+  cell4.innerHTML = column4;
+}
+
+</script>
+
+<style>
+  table {
+    text-align: center;
+  }
+
+  td{
+    border: 1px solid black;
+    text-align: center;
+    background-color:#f5f5f5;
+  }
+
+
+</style>
+
+<table id="resultstable" style="display:none">
+  <tr>
+    <td style="border-radius:6px 0px 0px 0px">Title</td>
+    <td>Wishlist 1</td>
+    <td>Wishlist 2</td>
+    <td style="border-radius:0px 6px 0px 0px">Wishlist 3</td>
+  </tr>
+</table>
+
+<button onclick="addToWishlist()" style="display:none" id="addToWishlistButton" class="button button1">Add Book(s) To Wishlist(s)</button> <br>
+
+
+<script>
+var matches = query(get("search"));
+
+//Displaying the table ONLY if there are results for the query
+if (matches.length > 0){
+  var resultsTable = document.getElementById("resultstable");
+  var addToWishlistButton = document.getElementById("addToWishlistButton");
+
+  resultsTable.style.display = "block";
+  addToWishlistButton.style.display = "block";
+
+}
+
+
+for(i = matches.length - 1; i >= 0; i--){
+  var title = matches[i];
+  var checkboxHTML1 = '<input type="checkbox" class="checkbox" id=' + '"' + matches[i] + 'wishlist1">';
+  var checkboxHTML2 = '<input type="checkbox" id=' + '"' + matches[i] + 'wishlist2">';
+  var checkboxHTML3 = '<input type="checkbox" id=' + '"' + matches[i] + 'wishlist3">';
+
+  addRow(title, checkboxHTML1, checkboxHTML2, checkboxHTML3)
+}
+
+</script>
+
+
+<style>
+#wishlistWrapper {
+  width: 97%;
+  text-align: center;
+}
+#wishlist1 {
+  width: 315px;
+  float: left;
+  position: relative;
+}
+#wishlist2 {
+  width: 315px;
+  margin: 0 auto;
+  position: relative;
+}
+#wishlist3 {
+  width: 315px;
+  float: right;
+  position: relative;
+}
+
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: lightblue;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0px!important;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover, .dropbtn:focus {
+  background-color: blue;
+  border: 2px solid blue;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: lightblue;
+  min-width: 100px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: blue;
+  color: white;
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+</style>
+
+Insert name of wishlist to add/remove:
+<input type="text" id="wishlistname" style="font-family: courier;background-color:#f5f5f5; border: 1px solid black">
+<button onclick="addWishlist()" class="button button1">Add Wishlist</button>
+<button onclick="removeWishlist()" class="button button1">Remove Wishlist</button>
+
+<div id="wishlistWrapper">
+  <table id="wishlist1" style="display:none">
+
+    <tr>
+      <td>This is the title of Wishlist 1</td>
+    </tr>
+  </table>
+  <table id="wishlist3" style="display:none">
+    <tr>
+      <td>This is the title of Wishlist 2</td>
+    </tr>
+  </table>
+  <table id="wishlist2" style="display:none">
+    <tr>
+      <td>This is the title of Wishlist 3</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+
+function toggleDropdown(product, table) {
+
+  var toggle = true;
+
+  if (table === "wishlist1"){
+    console.log("Wishlist 1 is activated!");
+
+    var wishlist1Table = document.getElementById(table);
+    var table = wishlist1Table.rows;
+
+    for (i = wishlist1Table.rows.length - 1; i >= 1; i--){
+
+      var titleCell = table[i].cells[0];
+
+      if (product === titleCell.innerHTML && toggle === true){
+        var toggle = false;
+        document.getElementById(product +"wishlist1myDropdown").classList.toggle("show");
+      }
+
+    } //end of for statement
+
+  } else if (table === "wishlist2"){
+    console.log("Wishlist 2 is activated!");
+    var wishlist2Table = document.getElementById(table);
+    var table = wishlist2Table.rows;
+
+    for (i = 1; i <= wishlist2Table.rows.length - 1; i++){
+
+      var titleCell = table[i].cells[0];
+
+      if (product === titleCell.innerHTML && toggle === true){
+        var toggle = false;
+        document.getElementById(product +"wishlist2myDropdown").classList.toggle("show");
+      } //end of if statement
+    }  //end of for statement
+  } else if (table === "wishlist3"){
+    console.log("Wishlist 3 is activated!");
+    console.log(product + table +"wishlist3myDropdown");
+    var wishlist3Table = document.getElementById(table);
+    var table = wishlist3Table.rows;
+
+    for (i = 1; i <= wishlist3Table.rows.length - 1; i++){
+
+      var titleCell = table[i].cells[0];
+
+      if (product === titleCell.innerHTML && toggle === true){
+        var toggle = false;
+        document.getElementById(product + "wishlist3myDropdown").classList.toggle("show");
+        }
+      }
+    }
+}
+
+function productSwitch(product, from, to){
+  //product: product to be moved
+  //from: original location for product
+  //to: destination location for product
+  // " FROM this wishlist TO that one"
+
+  var wishlist = document.getElementById(to);
+
+  //Checking to see if (to) destination wishlist is displayed/created
+  if (wishlist.style.display === "none"){
+    alert("Unable to move product, the specified wishlist has not been created.");
+    return -1;
+  }
+
+  //If the cell.innerHTML indicates that the table is empty, remove that specific row
+  if (wishlist.rows[1].innerHTML.includes("EMPTY WISHLIST")){
+      var emptyWishlist = wishlist.deleteRow(1);
+  }
+
+
+  if (from === "wishlist1" && to === "wishlist2"){
+    otherTable = "wishlist3";
+    //console.log("Entered first IF statement.")
+    //console.log("From: " + from);
+    //console.log("To: " + to);
+    //console.log("Other: " + otherTable);
+
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist2"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')" class="button dropbtn">⬅➡</button><div id="' + cell1.innerHTML + 'wishlist2myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  } else if (from === "wishlist2" && to === "wishlist1"){
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist1"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')" class="button dropbtn">➡</button><div id="' + cell1.innerHTML + 'wishlist1myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist2'" + ')" href="#">Wishlist 2</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  } else if (from === "wishlist2" && to === "wishlist3"){
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist3"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')" class="button dropbtn">⬅</button><div id="' + cell1.innerHTML + 'wishlist3myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist2'" + ')" href="#">Wishlist 2</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  } else if (from === "wishlist3" && to === "wishlist2"){
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist2"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')" class="button dropbtn">⬅➡</button><div id="' + cell1.innerHTML + 'wishlist2myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  } else if (from === "wishlist3" && to === "wishlist1"){
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist1"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')" class="button dropbtn">➡</button><div id="' + cell1.innerHTML + 'wishlist1myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist2'" + ')" href="#">Wishlist 2</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  } else if (from === "wishlist1" && to === "wishlist3"){
+    removeItem(product, from);
+    var row = wishlist.insertRow(1);
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = product;
+
+    var cell2 = row.insertCell(1);
+    cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')">🛒</button>';
+
+    var cell3 = row.insertCell(2);
+    cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist3"' + ")'>🗑</button>";
+
+    var cell4 = row.insertCell(3); //formatting issue when trying to pass variables into toggledropdown function, go the ugly way instead of trying to make a 'smart' function
+    dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')" class="button dropbtn">⬅</button><div id="' + cell1.innerHTML + 'wishlist3myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist2'" + ')" href="#">Wishlist 2</a></div></div>';
+    cell4.innerHTML = dropdownButton;
+  }
+
+
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+function changeTitle(tableName, innerHTML){
+  INNERHTML = innerHTML;
+  console.log("Inside changeTitle function!");
+  console.log("tableName:" + tableName);
+  console.log("innerHTML: " + innerHTML);
+  console.log(tableName === "wishlist1");
+
+  var wishlist1Table = document.getElementById("wishlist1")
+  var wishlist2Table = document.getElementById("wishlist2")
+  var wishlist3Table = document.getElementById("wishlist3")
+
+  console.log("Wishlist 1 innerHTML: " + wishlist1Table.rows[0].cells[0].innerText);
+
+
+  if (tableName === "wishlist1" &&  (wishlist2Table.rows[0].cells[0].innerText === innerHTML || wishlist3Table.rows[0].cells[0].innerText === innerHTML)){
+    console.log("1");
+
+    if (((wishlist2Table.rows[0].innerHTML).includes(innerHTML) || (wishlist3Table.rows[0].innerHTML).includes(innerHTML)) && ((wishlist2Table.rows[0].innerHTML).includes(innerHTML + "(1)") || (wishlist3Table.rows[0].innerHTML).includes(innerHTML + "(1)"))){
+      console.log("1b");
+      innerHTML = innerHTML + "(2)";
+    }// end of if statement
+
+    if (innerHTML != INNERHTML + "(2)"){
+      console.log("1c");
+      innerHTML = innerHTML + "(1)";
+    } //end of if statement
+  } // end of if statement
+
+  if (tableName === "wishlist2" &&  (wishlist1Table.rows[0].cells[0].innerText === innerHTML || wishlist3Table.rows[0].cells[0].innerText === innerHTML)){
+    console.log("2");
+
+    if (((wishlist1Table.rows[0].innerHTML).includes(innerHTML) || (wishlist3Table.rows[0].innerHTML).includes(innerHTML)) && ((wishlist1Table.rows[0].innerHTML).includes(innerHTML + "(1)") || (wishlist3Table.rows[0].innerHTML).includes(innerHTML + "(1)"))){
+      console.log("2b");
+      innerHTML = innerHTML + "(2)";
+    }// end of if statement
+
+    if (innerHTML != INNERHTML + "(2)"){
+      console.log("2c");
+      innerHTML = innerHTML + "(1)";
+    } //end of if statement
+  } // end of if statement
+
+  if (tableName === "wishlist3" &&  (wishlist2Table.rows[0].cells[0].innerText === innerHTML || wishlist1Table.rows[0].cells[0].innerText === innerHTML)){
+    console.log("3");
+    if (((wishlist2Table.rows[0].innerHTML).includes(innerHTML) || (wishlist1Table.rows[0].innerHTML).includes(innerHTML)) && ((wishlist2Table.rows[0].innerHTML).includes(innerHTML + "(1)") || (wishlist1Table.rows[0].innerHTML).includes(innerHTML + "(1)"))){
+      console.log("3b");
+      innerHTML = innerHTML + "(2)";
+    }// end of if statement
+
+    if (innerHTML != INNERHTML + "(2)"){
+      console.log("3c");
+      innerHTML = innerHTML + "(1)";
+    } //end of if statement
+  } // end of if statement
+
+
+
+
+
+  var table = document.getElementById(tableName);
+  var tableTitle = table.rows[0];
+  tableTitle.innerHTML = '<td colspan="4">' + innerHTML + "</td>";
+
+
+  var emptyWishlist = table.insertRow(1);
+  emptyWishlist.innerHTML = '<td width="315">' + "EMPTY WISHLIST" + "</td>";
+
+  /*
+  tableTitle.innerHTML = '<td colspan="4">' + innerHTML + "</td>";
+  emptyWishlist.innerHTML = '<td>' + "EMPTY WISHLIST" + "</td>";
+  var row = wishlist1Table.insertRow(1);
+
+  var cell1 = row.insertCell(0);
+  cell1.innerHTML = wishlist1items[i];
+*/
+}
+
+function hideTable(tableName){
+  var table = document.getElementById(tableName)
+  table.style.display = "none";
+}
+
+function addWishlist(){
+
+  var tableName = document.getElementById("wishlistname").value
+
+  if (tableName === ""){
+    alert("Please put a name in order to add a wishlist.");
+    return -1;
+  }
+
+
+  var wishlist1table = document.getElementById("wishlist1")
+  var wishlist2table = document.getElementById("wishlist2")
+  var wishlist3table = document.getElementById("wishlist3")
+
+  if (wishlist1table.style.display === "none" && wishlist2table.style.display === "none" && wishlist3table.style.display === "none") {
+    wishlist1table.style.display = "block";
+    changeTitle("wishlist1", tableName)
+  } else if (wishlist1table.style.display === "block" && wishlist2table.style.display === "none" && wishlist3table.style.display === "none") {
+    wishlist2table.style.display = "block";
+    changeTitle("wishlist2", tableName)
+  } else if (wishlist1table.style.display === "none" && wishlist2table.style.display === "block" && wishlist3table.style.display === "none") {
+    wishlist1table.style.display = "block";
+    changeTitle("wishlist1", tableName)
+  } else if (wishlist1table.style.display === "none" && wishlist2table.style.display === "none" && wishlist3table.style.display === "block") {
+    wishlist1table.style.display = "block";
+    changeTitle("wishlist1", tableName)
+  } else if (wishlist1table.style.display === "block" && wishlist2table.style.display === "block" && wishlist3table.style.display === "none") {
+    wishlist3table.style.display = "block";
+    changeTitle("wishlist3", tableName)
+  } else if (wishlist1table.style.display === "block" && wishlist2table.style.display === "none" && wishlist3table.style.display === "block") {
+    wishlist2table.style.display = "block";
+    changeTitle("wishlist2", tableName)
+  } else if (wishlist1table.style.display === "none" && wishlist2table.style.display === "block" && wishlist3table.style.display === "block") {
+    wishlist1table.style.display = "block";
+    changeTitle("wishlist1", tableName)
+  } else if (wishlist1table.style.display === "block" && wishlist2table.style.display === "block" && wishlist3table.style.display === "block") {
+    alert("You can only have up to 3 wishlists! Feel free to delete any existing wishlist in order to create more.");
+  }
+
+}
+
+function clearTable(wishlistName){
+  //Clears all content (except the header) of a table
+  // wishlistName (String) : name of table you would like to clear the content of.
+
+  document.getElementById(wishlistName).rows[0].cells[0].innerHTML = "";
+
+  var wishlistTableRows = document.getElementById(wishlistName).tBodies[0].rows.length;
+
+  for ( i = wishlistTableRows -1; i >= 1; i--){ // i >= 1 as to not delete the the title of the cell which acts like a innerHTML placeholder.
+    var wishlistTableRows = document.getElementById(wishlistName).tBodies[0].rows.length;
+    document.getElementById(wishlistName).deleteRow(i);
+  }
+}
+
+  function removeWishlist(){
+    //Removes wishlist
+
+    var tableName = document.getElementById("wishlistname").value.toUpperCase();
+
+    var wishlist1Table = document.getElementById("wishlist1");
+    var wishlist2Table = document.getElementById("wishlist2");
+    var wishlist3Table = document.getElementById("wishlist3");
+
+    var wishlist1TableTitle = document.getElementById("wishlist1").rows[0].cells[0].innerHTML.toUpperCase();
+    var wishlist2TableTitle = document.getElementById("wishlist2").rows[0].cells[0].innerHTML.toUpperCase();
+    var wishlist3TableTitle = document.getElementById("wishlist3").rows[0].cells[0].innerHTML.toUpperCase();
+
+    if (tableName === wishlist1TableTitle){
+      wishlist1Table.style.display = "none";
+      clearTable("wishlist1")
+    } else if (tableName === wishlist2TableTitle){
+      wishlist2Table.style.display = "none";
+      clearTable("wishlist2")
+    } else if (tableName === wishlist3TableTitle){
+      wishlist3Table.style.display = "none";
+      clearTable("wishlist3")
+    } else {
+      alert("There are no tables with that name!");
+    }
+  } //end of removeWishlist function
+
+  function removeItem(product, table){
+    // deletes item from appropriate wishlist database and removes product from wishlist DOM
+    var deletion = true;
+
+    if (table === "wishlist1"){
+
+      var wishlist1Table = document.getElementById(table);
+      var table = wishlist1Table.rows;
+
+      for (i = wishlist1Table.rows.length - 1; i >= 1; i--){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          //console.log(product + " has been removed from " + " wishlist1."); //replace with 'remove from database'
+          wishlist1Table.deleteRow(i);
+        }
+
+      } //end of for statement
+
+      if (wishlist1Table.rows.length - 1 == 0){
+        var emptyWishlist = wishlist1Table.insertRow(1);
+        emptyWishlist.innerHTML = '<td width="315">' + "EMPTY WISHLIST" + "</td>";
+      }
+
+    } else if (table === "wishlist2"){
+      var wishlist2Table = document.getElementById(table);
+      var table = wishlist2Table.rows;
+
+      for (i = 1; i <= wishlist2Table.rows.length - 1; i++){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          //console.log(product + " has been removed from " + " wishlist2."); //replace with 'remove from database'
+          wishlist2Table.deleteRow(i);
+        } //end of if statement
+      }  //end of for statement
+
+      if (wishlist2Table.rows.length - 1 == 0){
+        var emptyWishlist = wishlist2Table.insertRow(1);
+        emptyWishlist.innerHTML = '<td width="315">' + "EMPTY WISHLIST" + "</td>";
+      }
+
+    } else if (table === "wishlist3"){
+      var wishlist3Table = document.getElementById(table);
+      var table = wishlist3Table.rows;
+
+      for (i = 1; i <= wishlist3Table.rows.length - 1; i++){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          //console.log(product + " has been removed from " + " wishlist3."); //replace with 'remove from database'
+          wishlist3Table.deleteRow(i);
+          }
+        }
+
+        if (wishlist3Table.rows.length - 1 == 0){
+          var emptyWishlist = wishlist3Table.insertRow(1);
+          emptyWishlist.innerHTML = '<td width="315">' + "EMPTY WISHLIST" + "</td>";
+        }
+      }
+
+  } //end of removeItem function
+
+  function addToShoppingCart(product, table){
+    // sends product to shopping cart via query then removes product from wishlist.
+
+    var deletion = true;
+
+    if (table === "wishlist1"){
+
+      var wishlist1Table = document.getElementById(table);
+      var table = wishlist1Table.rows;
+
+      for (i = wishlist1Table.rows.length - 1; i >= 1; i--){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          console.log(product + " has been removed from " + " wishlist1 and added to Shopping Cart"); //replace with actual query
+          wishlist1Table.deleteRow(i);
+        }
+
+      } //end of for statement
+
+    } else if (table === "wishlist2"){
+      var wishlist2Table = document.getElementById(table);
+      var table = wishlist2Table.rows;
+
+      for (i = 1; i <= wishlist2Table.rows.length - 1; i++){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          console.log(product + " has been removed from " + " wishlist2 and added to Shopping Cart"); //replace with actual query
+          wishlist2Table.deleteRow(i);
+        } //end of if statement
+      }  //end of for statement
+    } else if (table === "wishlist3"){
+      var wishlist3Table = document.getElementById(table);
+      var table = wishlist3Table.rows;
+
+      for (i = 1; i <= wishlist3Table.rows.length - 1; i++){
+
+        var titleCell = table[i].cells[0];
+
+        if (product === titleCell.innerHTML && deletion === true){
+          var deletion = false;
+          console.log(product + " has been removed from " + " wishlist3 and added to Shopping Cart"); //replace with actual query
+          wishlist3Table.deleteRow(i);
+          }
+        }
+      }
+  } //end of addToShoppingCart()
+
+  function addToWishlist(){
+
+    var wishlist1Table = document.getElementById("wishlist1");
+    var wishlist2Table = document.getElementById("wishlist2");
+    var wishlist3Table = document.getElementById("wishlist3");
+
+    //Keeps track of what books should be added to which wishlist
+    wishlist1items = [];
+    wishlist2items = [];
+    wishlist3items = [];
+
+    var table = document.getElementById("resultstable");
+
+    for(i = 1; i <= matches.length; i++){
+
+        var statusCheck1 = table.rows[i].cells[1].children[0].checked;
+        var statusCheck2 = table.rows[i].cells[2].children[0].checked;
+        var statusCheck3 = table.rows[i].cells[3].children[0].checked;
+
+        if (statusCheck1 === true){
+          wishlist1items.push(matches[i - 1]);
+        }
+        if (statusCheck2 === true){
+          wishlist2items.push(matches[i - 1]);
+        }
+        if (statusCheck3 === true){
+          wishlist3items.push(matches[i - 1]);
+        }
+      }
+
+      if (wishlist1Table.rows.length > 1){
+        console.log("There's something in the table!");
+        for (i = 0; i <= wishlist1items.length - 1; i++){
+            for(j = 0; j <= wishlist1Table.rows.length - 1; j++){
+
+                if(wishlist1items[i] === wishlist1Table.rows[j].cells[0].innerHTML){
+                  wishlist1items.splice(i, 1);
+                } //end of if statement
+          } //end of j for statement
+        } //end of i for statement
+      } //end of if statement
+
+      if (wishlist2Table.rows.length > 1){
+        console.log("There's something in the table!");
+        for (i = 0; i <= wishlist2items.length - 1; i++){
+            for(j = 0; j <= wishlist2Table.rows.length - 1; j++){
+
+                if(wishlist2items[i] === wishlist2Table.rows[j].cells[0].innerHTML){
+                  wishlist2items.splice(i, 1);
+                } //end of if statement
+          } //end of j for statement
+        } //end of i for statement
+      } //end of if statement
+
+      if (wishlist3Table.rows.length > 1){
+        console.log("There's something in the table!");
+        for (i = 0; i <= wishlist3items.length - 1; i++){
+            for(j = 0; j <= wishlist3Table.rows.length - 1; j++){
+
+                if(wishlist3items[i] === wishlist3Table.rows[j].cells[0].innerHTML){
+                  wishlist3items.splice(i, 1);
+                } //end of if statement
+          } //end of j for statement
+        } //end of i for statement
+      } //end of if statement
+
+
+
+      if(wishlist1items.length > 0 && wishlist1Table.style.display === "block"){
+        for (i = 0; i <= wishlist1items.length - 1; i++){
+
+          if (wishlist1Table.rows[1].innerHTML.includes("EMPTY WISHLIST")){
+              var emptyWishlist = wishlist1Table.deleteRow(1);
+          }
+
+          var row = wishlist1Table.insertRow(1);
+
+          var cell1 = row.insertCell(0);
+          cell1.innerHTML = wishlist1items[i];
+
+          var cell2 = row.insertCell(1);
+          cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'addToCartButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')">🛒</button>';
+
+          var cell3 = row.insertCell(2);
+          cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist1"' + ")'>🗑</button>";
+
+          var cell4 = row.insertCell(3);
+          dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist1'" + ')" class="button dropbtn">➡</button><div id="' + cell1.innerHTML + 'wishlist1myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist2'" + ')" href="#">Wishlist 2</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist1','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+          cell4.innerHTML = dropdownButton;
+
+        }
+      } else if (wishlist1items.length > 0 && wishlist1Table.style.display === "none"){
+        alert("Wishlist 1 does not exist, please create it below.");
+      }
+
+
+      if(wishlist2items.length > 0 && wishlist2Table.style.display === "block"){
+        for (i = 0; i <= wishlist2items.length - 1; i++){
+
+          console.log(wishlist2Table.rows[1].innerHTML);
+          if (wishlist2Table.rows[1].innerHTML.includes("EMPTY WISHLIST")){
+              var emptyWishlist = wishlist2Table.deleteRow(1);
+          }
+          var row = wishlist2Table.insertRow(1);
+
+          var cell1 = row.insertCell(0);
+          cell1.innerHTML = wishlist2items[i];
+
+          var cell2 = row.insertCell(1);
+          cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'removeItemButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')">🛒</button>';
+
+          var cell3 = row.insertCell(2);
+          cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist2"' + ")'>🗑</button>";
+
+          var cell4 = row.insertCell(3);
+          dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist2'" + ')" class="button dropbtn">⬅➡</button><div id="' + cell1.innerHTML + 'wishlist2myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist2','wishlist3'" + ')" href="#">Wishlist 3</a></div></div>';
+          cell4.innerHTML = dropdownButton;
+        }
+      } else if (wishlist2items.length > 0 && wishlist2Table.style.display === "none"){
+        alert("Wishlist 2 does not exist, please create it below.");
+      }
+
+      if(wishlist3items.length > 0 && wishlist3Table.style.display === "block"){
+        for (i = 0; i <= wishlist3items.length - 1; i++){
+          if (wishlist3Table.rows[1].innerHTML.includes("EMPTY WISHLIST")){
+              var emptyWishlist = wishlist3Table.deleteRow(1);
+          }
+          var row = wishlist3Table.insertRow(1);
+
+          var cell1 = row.insertCell(0);
+          cell1.innerHTML = wishlist3items[i];
+
+          var cell2 = row.insertCell(1);
+          cell2.innerHTML = '<button type="button" id="' + cell1.innerHTML + 'removeItemButton" class="button addToCartButton" onclick="addToShoppingCart(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')">🛒</button>';
+
+          var cell3 = row.insertCell(2);
+          cell3.innerHTML = "<button type='button' id='" + cell1.innerHTML + "removeItemButton' class='button removeItemButton' onclick='removeItem(\"" + cell1.innerHTML + "\", " + '"wishlist3"' + ")'>🗑</button>";
+
+          var cell4 = row.insertCell(3);
+          dropdownButton = '<div class="dropdown"><button onclick="toggleDropdown(\'' + cell1.innerHTML + '\', ' + "'wishlist3'" + ')" class="button dropbtn">⬅</button><div id="' + cell1.innerHTML + 'wishlist3myDropdown" class="dropdown-content"><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist1'" + ')" href="#">Wishlist 1</a><a onclick="productSwitch(\'' + cell1.innerHTML + '\', ' + "'wishlist3','wishlist2'" + ')" href="#">Wishlist 2</a></div></div>';
+          cell4.innerHTML = dropdownButton;
+        }
+      } else if (wishlist3items.length > 0 && wishlist3Table.style.display === "none"){
+        alert("Wishlist 3 does not exist, please create it below.");
+      }
+}
+
+
+
+</script>
+</body>
+
+{% endblock %}
+
