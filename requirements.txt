@@ -1,0 +1,4 @@
+django
+django-crispy-forms
+django-mathfilters
+django-credit-cards
